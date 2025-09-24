@@ -1,0 +1,16 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "eks:CreateAccessEntry",
+        "eks:AssociateAccessPolicy",
+        "eks:DescribeAccessEntry",
+        "eks:ListAccessEntries",
+        "eks:DescribeCluster"
+      ],
+      "Resource": "arn:aws:eks:us-east-1:159431052044:cluster/innovatemart-eks"
+    }
+  ]
+}

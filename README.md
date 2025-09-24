@@ -1,0 +1,70 @@
+# Project Bedrock: InnovateMart EKS Deployment
+
+## Overview
+This repository contains the implementation of InnovateMart's "Project Bedrock," a mission to deploy a microservices-based retail store application on Amazon Elastic Kubernetes Service (EKS). The project includes Infrastructure as Code (IaC) using Terraform, a CI/CD pipeline with GitHub Actions, and Kubernetes manifests to deploy the `retail-store-sample-app`. The setup ensures scalability, security, and developer access as per the assessment requirements.
+
+## Repository Structure
+- `/terraform/`: Terraform modules for provisioning AWS resources (VPC, EKS cluster, IAM roles).
+- `/k8s/`: Kubernetes manifests for deploying the retail-store-sample-app and its in-cluster dependencies.
+- `/.github/workflows/`: GitHub Actions workflows for CI/CD automation.
+- `/docs/`: Deployment & Architecture Guide (see PDF for details).
+
+## Prerequisites
+- AWS CLI configured with admin access.
+- Terraform v1.5.0 or higher.
+- kubectl configured with access to the EKS cluster.
+- GitHub repository with Actions enabled.
+
+## Setup Instructions
+1. **Clone the Repository**:
+   ```bash
+   git clone https://github.com/aws-containers/retail-store-sample-app
+   cd retail-store-sample-app
+   ```
+
+2. **Provision Infrastructure**:
+   - Navigate to `/terraform/`.
+   - Run `terraform init` to initialize.
+   - Run `terraform plan` to review resources.
+   - Run `terraform apply` to provision the VPC, EKS cluster, and IAM roles.
+
+3. **Configure kubectl**:
+   - Update kubeconfig: `aws eks update-kubeconfig --name innovatemart-eks --region us-east-1`.
+
+4. **Deploy Application**:
+   - Navigate to `/k8s/`.
+   - Apply manifests: `kubectl apply -f .`.
+
+5. **Access the Application**:
+   - The `ui` service is exposed via a ClusterIP. Use `kubectl port-forward` to access locally: `kubectl port-forward svc/ui 8080:80`.
+   - Open `http://localhost:8080` in your browser.
+
+6. **Developer Access**:
+   - A read-only IAM user (`dev-user`) is created with permissions to view EKS resources.
+   - Credentials are stored securely in AWS Secrets Manager (ARN provided in the guide).
+   - Configure `kubectl` for the developer user.
+
+## CI/CD Pipeline
+- **Tool**: GitHub Actions.
+- **Workflow**: 
+  - Pushes to feature branches trigger `terraform plan`.
+  - Merges to `main` trigger `terraform apply`.
+- **Security**: AWS credentials are stored as GitHub Secrets (`AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`).
+- **Location**: See `.github/workflows/terraform.yml`.
+
+## Bonus Objectives
+- **Managed Persistence**: Configured AWS RDS for PostgreSQL and MySQL, and DynamoDB for the carts service. Updated ConfigMaps and Secrets in `/k8s/` to point to these services.
+- **Networking**: Deployed AWS Load Balancer Controller and created an Ingress resource for the `ui` service. Configured Route 53 and ACM for HTTPS (documented in `/docs/`).
+
+## Documentation
+- The `docs/` folder contains the Deployment & Architecture Guide (`architecture-guide.pdf`), detailing the setup, architecture diagram, and developer access instructions.
+
+## Running the Application
+- The `retail-store-sample-app` runs with in-cluster MySQL, PostgreSQL, DynamoDB Local, Redis, and RabbitMQ.
+- Access the UI at `http://a57a094fea6d64e5e88d1255009bd48a-402411837.us-east-1.elb.amazonaws.com/` after port-forwarding.
+- Developers can use the provided IAM user credentials to view logs and pod status.
+
+## Notes
+- Ensure AWS credentials are securely managed and not hardcoded.
+- The repository follows GitFlow, with `main` for production and `feature/*` for development.
+- For bonus objectives, Route 53 domain setup uses a placeholder 

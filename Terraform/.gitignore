@@ -1,0 +1,48 @@
+# Terraform
+*.tfstate
+*.tfstate.backup
+*.tfvars
+.terraform/
+.terraform.lock.hcl
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+crash.log
+*.tfplan
+
+# Kubernetes
+*.kubeconfig
+*.kube/cache/
+*.kube/http-cache/
+
+# OS / IDE files
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+.vscode/
+.idea/
+*.log
+
+# Secrets / credentials
+*.pem
+*.key
+*.crt
+*.env
+*.secret
+secrets.json
+credentials.json
+credentials.yaml
+credentials.yml
+*.p12
+*.jks
+*.asc
+*.gpg
+*.kdbx
+
+eks-admin-cluster-role-binding.yaml
+eks-admin-service-account.yaml
+config-map-aws-auth*.yaml
+kubeconfig_*
+.idea

@@ -49,15 +49,43 @@ This repository contains the implementation of InnovateMart's "Project Bedrock,"
 - **Workflow**: 
   - Pushes to feature branches trigger `terraform plan`.
   - Merges to `main` trigger `terraform apply`.
-- **Security**: AWS credentials are stored as GitHub Secrets (`AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`).
 - **Location**: See `.github/workflows/terraform.yml`.
 
-## Bonus Objectives
-- **Managed Persistence**: Configured AWS RDS for PostgreSQL and MySQL, and DynamoDB for the carts service. Updated ConfigMaps and Secrets in `/k8s/` to point to these services.
-- **Networking**: Deployed AWS Load Balancer Controller and created an Ingress resource for the `ui` service. Configured Route 53 and ACM for HTTPS (documented in `/docs/`).
+## Infrastructure Decisions
+
+**Why EKS over ECS?**
+EKS gives full Kubernetes compatibility, manifests, services, and 
+ingress configs are portable and not locked to AWS specific tool. 
+For a microservices architecture with multiple independent services, 
+Kubernetes provides better service discovery and scaling control.
+
+**Why Terraform over CloudFormation?**
+Terraform is cloud agnostic and has a cleaner module system. It also 
+provides better state management and plan/apply workflow which maps 
+naturally to CI/CD, you can diff infrastructure changes before 
+applying them, exactly like a code review.
+
+**Why managed databases (RDS) instead of in-cluster?**
+Running databases inside Kubernetes works for dev but is a liability 
+in production. RDS handles automated backups, failover, and patching. 
+DynamoDB for the carts service gives auto-scaling with zero operational 
+overhead, a better fit for a service with unpredictable traffic spikes.
+
+**IAM least-privilege + Secrets Manager**
+Developer access is scoped to read-only EKS permissions only. 
+No credentials are hardcoded, all secrets are stored in AWS Secrets 
+Manager and injected at runtime.
 
 ## Documentation
-- The `docs/` folder contains the Deployment & Architecture Guide (`architecture-guide.pdf`), detailing the setup, architecture diagram, and developer access instructions.
+- The `doc/` folder contains the Deployment & Architecture Guide (`architecture-guide.pdf`), detailing the setup, architecture diagram, and developer access instructions.
+
+## Security
+- IAM roles follow least-privilege — each service has only the 
+  permissions it needs
+- Read-only `dev-user` IAM account for developer cluster access, 
+  credentials stored in Secrets Manager
+- HTTPS enforced via ACM certificate + Route 53
+- No secrets hardcoded anywhere in the repository
 
 ## Running the Application
 - The `retail-store-sample-app` runs with in-cluster MySQL, PostgreSQL, DynamoDB Local, Redis, and RabbitMQ.
@@ -67,4 +95,8 @@ This repository contains the implementation of InnovateMart's "Project Bedrock,"
 ## Notes
 - Ensure AWS credentials are securely managed and not hardcoded.
 - The repository follows GitFlow, with `main` for production and `feature/*` for development.
-- For bonus objectives, Route 53 domain setup uses a placeholder 
+- For bonus objectives, Route 53 domain setup uses a placeholder
+
+## Contact
+Built by [Chisom Okeke](https://github.com/kergs)  
+📫 cchisomfrancis@gmail.com · X [@_kergs](https://twitter.com/_kergs)
